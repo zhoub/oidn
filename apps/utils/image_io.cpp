@@ -330,33 +330,59 @@ namespace oidn {
     return image;
   }
 
-  void saveImageOIIO(const std::string& filename, const ImageBuffer& image)
+  void saveImageOIIO(const std::string& filename, const std::string& colorFilename, const ImageBuffer& image)
   {
+    auto in = OIIO::ImageInput::open(colorFilename);
+    if (!in)
+      throw std::runtime_error("cannot open image file: " + filename);
+
+    const OIIO::ImageSpec& inSpec = in->spec();
+
     auto out = OIIO::ImageOutput::create(filename);
     if (!out)
       throw std::runtime_error("cannot save unsupported image file format: " + filename);
 
-    OIIO::TypeDesc format;
+    const auto &imageDims = image.dims();
+    OIIO::TypeDesc imageFormat;
     switch (image.dataType)
     {
-    case Format::Float: format = OIIO::TypeDesc::FLOAT; break;
-    case Format::Half:  format = OIIO::TypeDesc::HALF;  break;
+    case Format::Float: imageFormat = OIIO::TypeDesc::FLOAT; break;
+    case Format::Half:  imageFormat = OIIO::TypeDesc::HALF;  break;
     default:            throw std::runtime_error("unsupported image data type");
     }
+    size_t imageFormatSize = imageFormat.size();
+    size_t imageRgbSize = imageFormatSize * imageDims[2];
 
-    OIIO::ImageSpec spec(image.width,
-                         image.height,
-                         image.numChannels,
-                         format);
+    OIIO::ImageSpec outSpec(image.width,
+                            image.height,
+                            inSpec.nchannels,
+                            imageFormat);
 
-    if (!out->open(filename, spec))
+    if (!out->open(filename, outSpec))
       throw std::runtime_error("cannot create image file: " + filename);
-    if (!out->write_image(format, image.data()))
-      throw std::runtime_error("failed to write image data");
+
+    size_t inPixelSize = inSpec.nchannels * imageFormatSize;
+    size_t inScanlineSize = inSpec.width * inPixelSize;
+    for (int y = 0; y < outSpec.height; y++)
+    {
+      std::vector<char> scanline(inScanlineSize);
+      in->read_scanline(y, 0, imageFormat, scanline.data());
+
+      const char* p = image.bufferPtr + y * imageDims[0] * imageRgbSize;
+      for (int x = 0; x < outSpec.width; x++)
+      {
+        memcpy(scanline.data() + x * inPixelSize, p + x * imageRgbSize, imageRgbSize);
+      }
+
+      out->write_scanline(y, 0, imageFormat, scanline.data());
+    }
+
     out->close();
+    in->close();
 
 #if OIIO_VERSION < 10903
     OIIO::ImageOutput::destroy(out);
+    OIIO::ImageOutput::destroy(in);
 #endif
   }
 #endif
@@ -383,7 +409,7 @@ namespace oidn {
     return image;
   }
 
-  void saveImage(const std::string& filename, const ImageBuffer& image)
+  void saveImage(const std::string& filename, const std::string& colorFilename, const ImageBuffer& image)
   {
     const std::string ext = getExtension(filename);
     if (ext == "pfm")
@@ -394,7 +420,7 @@ namespace oidn {
       saveImagePPM(filename, image);
     else
 #if OIDN_USE_OPENIMAGEIO
-      saveImageOIIO(filename, image);
+      saveImageOIIO(filename, colorFilename, image);
 #else
       throw std::runtime_error("cannot write unsupported image file format: " + filename);
 #endif
@@ -418,17 +444,17 @@ namespace oidn {
     return image;
   }
 
-  void saveImage(const std::string& filename, const ImageBuffer& image, bool srgb)
+  void saveImage(const std::string& filename, const std::string& colorFilename, const ImageBuffer& image, bool srgb)
   {
     if (!srgb && isSrgbImage(filename))
     {
       std::shared_ptr<ImageBuffer> newImage = image.clone();
       srgbForward(*newImage);
-      saveImage(filename, *newImage);
+      saveImage(filename, colorFilename, *newImage);
     }
     else
     {
-      saveImage(filename, image);
+      saveImage(filename, colorFilename, image);
     }
   }
 

@@ -351,7 +351,7 @@ int main(int argc, char* argv[])
     {
       // Save output image
       std::cout << "Saving output" << std::endl;
-      saveImage(outputFilename, *output, srgb);
+      saveImage(outputFilename, colorFilename, *output, srgb);
     }
 
     if (ref)
@@ -370,9 +370,9 @@ int main(int argc, char* argv[])
       {
         // Save debug images
         std::cout << "Saving debug images" << std::endl;
-        saveImage("denoise_in.ppm",  *input,  srgb);
-        saveImage("denoise_out.ppm", *output, srgb);
-        saveImage("denoise_ref.ppm", *ref,    srgb);
+        saveImage("denoise_in.ppm",  colorFilename, *input,  srgb);
+        saveImage("denoise_out.ppm", colorFilename, *output, srgb);
+        saveImage("denoise_ref.ppm", colorFilename, *ref,    srgb);
 
         throw std::runtime_error("output does not match the reference");
       }

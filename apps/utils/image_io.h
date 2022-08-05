@@ -167,10 +167,10 @@ namespace oidn {
                                          Format dataType = Format::Undefined);
 
   // Saves an image
-  void saveImage(const std::string& filename, const ImageBuffer& image);
+  void saveImage(const std::string& filename, const std::string& colorFilename, const ImageBuffer& image);
 
   // Saves an image with/without linear to sRGB conversion
-  void saveImage(const std::string& filename, const ImageBuffer& image, bool srgb);
+  void saveImage(const std::string& filename, const std::string& colorFilename, const ImageBuffer& image, bool srgb);
 
   // Compares an image to a reference image and returns the number of errors
   // and the maximum error value
