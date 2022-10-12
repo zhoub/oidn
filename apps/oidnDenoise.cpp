@@ -7,6 +7,7 @@
 #include <limits>
 #include <cmath>
 #include <signal.h>
+#include <map>
 
 #ifdef VTUNE
 #include <ittnotify.h>
@@ -27,7 +28,7 @@ void printUsage()
   std::cout << "usage: oidnDenoise [-d/--device default|cpu]" << std::endl
             << "                   [-f/--filter RT|RTLightmap]" << std::endl
             << "                   [--hdr color.pfm] [--ldr color.pfm] [--srgb] [--dir directional.pfm]" << std::endl
-            << "                   [--alb albedo.pfm] [--nrm normal.pfm] [--clean_aux]" << std::endl
+            << "                   [--alb albedo.pfm] [--nrm normal.pfm] [--clean_aux] [--prefilter_aux]" << std::endl
             << "                   [--is/--input_scale value]" << std::endl
             << "                   [-o/--output output.pfm] [-r/--ref reference_output.pfm]" << std::endl
             << "                   [-t/--type float|half]" << std::endl
@@ -87,6 +88,7 @@ int main(int argc, char* argv[])
   bool directional = false;
   float inputScale = std::numeric_limits<float>::quiet_NaN();
   bool cleanAux = false;
+  bool prefilterAux = false;
   Format dataType = Format::Undefined;
   int numBenchmarkRuns = 0;
   int numThreads = -1;
@@ -149,6 +151,8 @@ int main(int argc, char* argv[])
         inputScale = args.getNextValueFloat();
       else if (opt == "clean_aux" || opt == "cleanAux")
         cleanAux = true;
+      else if (opt == "prefilter_aux" || opt == "prefilterAux")
+        prefilterAux = true;
       else if (opt == "t" || opt == "type")
       {
         const auto val = args.getNextValue();
@@ -272,6 +276,39 @@ int main(int argc, char* argv[])
     {
       std::cout << "Loading filter weights" << std::endl;
       weights = loadFile(weightsFilename);
+    }
+
+    // Apply filter for albedo and normal passes if needed.
+    if (prefilterAux)
+    {
+      std::map<std::string, std::shared_ptr<ImageBuffer> > prefilterImages;
+      if (albedo)
+        prefilterImages["albedo"] = albedo;
+      if (normal)
+        prefilterImages["normal"] = normal;
+
+      for (const auto& pair : prefilterImages)
+      {
+        auto name = pair.first;
+        auto image = pair.second;
+
+        std::cout << "Prefiltering " << name << std::endl;
+        timer.reset();
+
+        FilterRef filter = device.newFilter(filterType.c_str());
+        filter.setImage(name.c_str(), image->data(), image->format(), image->width, image->height);
+        filter.setImage("output", image->data(), image->format(), image->width, image->height);
+
+        if (maxMemoryMB >= 0)
+          filter.set("maxMemoryMB", maxMemoryMB);
+
+        filter.commit();
+        filter.execute();
+
+        const double filterInitTime = timer.query();
+        std::cout << "  filter=" << filterType
+                  << ", msec=" << (1000. * filterInitTime) << std::endl;
+      }
     }
 
     // Initialize the denoising filter
