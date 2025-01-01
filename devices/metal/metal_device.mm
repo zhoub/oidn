@@ -54,7 +54,8 @@ OIDN_NAMESPACE_BEGIN
     if (@available(macOS 13, iOS 16, tvOS 16, *))
     {
       return [device supportsFamily: MTLGPUFamilyMetal3] &&
-             [device supportsFamily: MTLGPUFamilyApple6] && // validated only on Apple GPUs
+             ([device supportsFamily: MTLGPUFamilyApple6] ||
+              [device supportsFamily: MTLGPUFamilyMac2]) &&
              device.maxThreadsPerThreadgroup.width >= 1024;
 
     }
@@ -94,8 +95,6 @@ OIDN_NAMESPACE_BEGIN
 
         std::cout << "  Device    : " << name << std::endl;
         std::cout << "    Type    : Metal" << std::endl;
-        if (@available(macOS 14, iOS 17, tvOS 17, *))
-          std::cout << "    Arch    : " << device.architecture.name.UTF8String << std::endl;
       }
 
       // Set device properties
