@@ -1,6 +1,23 @@
 Version History
 ---------------
 
+### Changes in v2.3.3:
+
+-   Added NVIDIA Blackwell GPU support
+-   Added AMD RDNA4 GPU support
+-   Improved performance for AMD RDNA3 GPUs
+-   Added `OIDN_DEPENDENTLOADFLAG` CMake option for setting the
+    `DEPENDENTLOADFLAG` linker flag on Windows
+-   Added `OIDN_LIBRARY_VERSIONED` CMake option for toggling versioning in the
+    Open Image Denoise library files
+-   Known issue: performance regression for AMD RDNA2 GPUs
+
+### Changes in v2.3.2:
+
+-   Improved performance for Intel Lunar Lake and Battlemage GPUs
+-   Added Intel Panther Lake GPU support
+-   Fixed compile error when building with OpenImageIO 3.x
+
 ### Changes in v2.3.1:
 
 -   Fixed corrupted output when in-place denoising high-resolution (> 1080p)

@@ -7,7 +7,38 @@
 
 OIDN_NAMESPACE_BEGIN
 
-  template<typename T, Activation builtinActivation>
+  template<
+    typename T,
+    typename AccumT,
+    Activation builtinActivation,
+    ck::index_t NumGemmKPrefetchStage,
+    ck::index_t BlockSize,
+    ck::index_t MPerBlock,
+    ck::index_t NPerBlock,
+    ck::index_t KPerBlock,
+    ck::index_t K1,
+    ck::index_t MPerWmma,
+    ck::index_t NPerWmma,
+    ck::index_t MRepeat,
+    ck::index_t NRepeat,
+    typename ABlockTransferThreadClusterLengths_AK0_M_AK1,
+    typename ABlockTransferThreadClusterArrangeOrder,
+    typename ABlockTransferSrcAccessOrder,
+    ck::index_t ABlockTransferSrcVectorDim,
+    ck::index_t ABlockTransferSrcScalarPerVector,
+    ck::index_t ABlockTransferDstScalarPerVector_AK1,
+    bool ABlockLdsExtraM,
+    typename BBlockTransferThreadClusterLengths_BK0_N_BK1,
+    typename BBlockTransferThreadClusterArrangeOrder,
+    typename BBlockTransferSrcAccessOrder,
+    ck::index_t BBlockTransferSrcVectorDim,
+    ck::index_t BBlockTransferSrcScalarPerVector,
+    ck::index_t BBlockTransferDstScalarPerVector_BK1,
+    bool BBlockLdsExtraN,
+    ck::index_t CShuffleMRepeatPerShuffle,
+    ck::index_t CShuffleNRepeatPerShuffle,
+    typename CDEShuffleBlockTransferClusterLengths_MBlock_MPerBlock_NBlock_NPerBlock,
+    ck::index_t CDEShuffleBlockTransferScalarPerVector_NPerBlock>
   class CKConvWMMA final : public Conv
   {
   private:
@@ -15,7 +46,7 @@ OIDN_NAMESPACE_BEGIN
     using InDataType       = DataType;
     using WeiDataType      = DataType;
     using BiasDataType     = DataType;
-    using AccDataType      = float;
+    using AccDataType      = typename CKDataType<AccumT>::Type;
     using CShuffleDataType = DataType;
     using OutDataType      = DataType;
 
@@ -29,9 +60,6 @@ OIDN_NAMESPACE_BEGIN
     using OutElementOp = std::conditional_t<builtinActivation == Activation::ReLU,
                                             ck::tensor_operation::element_wise::AddRelu,
                                             ck::tensor_operation::element_wise::Add>;
-
-    template<ck::index_t... Is>
-    using S = ck::Sequence<Is...>;
 
     static constexpr auto ConvSpec =
       ck::tensor_operation::device::ConvolutionForwardSpecialization::Default;
@@ -48,45 +76,62 @@ OIDN_NAMESPACE_BEGIN
         OutLayout,               // ELayout
         InDataType,              // ADataType
         WeiDataType,             // BDataType
-        ck::Tuple<BiasDataType>, // DsDataType
-        OutDataType,             // EDataType
         AccDataType,             // AccDataType
         CShuffleDataType,        // CShuffleDataType
+        ck::Tuple<BiasDataType>, // DsDataType
+        OutDataType,             // EDataType
         InElementOp,             // AElementwiseOperation
         WeiElementOp,            // BElementwiseOperation
         OutElementOp,            // CDEElementwiseOperation
         ConvSpec,                // ConvForwardSpecialization
         GemmSpec,                // GemmSpecialization
-        256,                     // BlockSize
-        128,                     // MPerBlock
-        64,                      // NPerBlock
-        4,                       // K0PerBlock
-        8,                       // K1
-        16,                      // MPerWMMA
-        16,                      // NPerWMMA
-        4,                       // MRepeat
-        1,                       // NRepeat
-        S<4, 64, 1>,             // ABlockTransferThreadClusterLengths_AK0_M_AK1
-        S<1, 0, 2>,              // ABlockTransferThreadClusterArrangeOrder
-        S<1, 0, 2>,              // ABlockTransferSrcAccessOrder
-        2,                       // ABlockTransferSrcVectorDim
-        8,                       // ABlockTransferSrcScalarPerVector
-        8,                       // ABlockTransferDstScalarPerVector_AK1
-        true,                    // ABlockLdsExtraM
-        S<4, 64, 1>,             // BBlockTransferThreadClusterLengths_BK0_N_BK1
-        S<1, 0, 2>,              // BBlockTransferThreadClusterArrangeOrder
-        S<1, 0, 2>,              // BBlockTransferSrcAccessOrder
-        2,                       // BBlockTransferSrcVectorDim
-        8,                       // BBlockTransferSrcScalarPerVector
-        8,                       // BBlockTransferDstScalarPerVector_BK1
-        true,                    // BBlockLdsExtraN
-        1,                       // CShuffleMRepeatPerShuffle
-        1,                       // CShuffleNRepeatPerShuffle
-        S<1, 32, 1, 8>,          // CDEShuffleBlockTransferClusterLengths_MBlock_MPerBlock_NBlock_NPerBlock
-        8                        // CDEShuffleBlockTransferScalarPerVector_NPerBlock
-      >;
+        NumGemmKPrefetchStage,
+        BlockSize,
+        MPerBlock,
+        NPerBlock,
+        KPerBlock,
+        K1,
+        MPerWmma,
+        NPerWmma,
+        MRepeat,
+        NRepeat,
+        ABlockTransferThreadClusterLengths_AK0_M_AK1,
+        ABlockTransferThreadClusterArrangeOrder,
+        ABlockTransferSrcAccessOrder,
+        ABlockTransferSrcVectorDim,
+        ABlockTransferSrcScalarPerVector,
+        ABlockTransferDstScalarPerVector_AK1,
+        ABlockLdsExtraM,
+        BBlockTransferThreadClusterLengths_BK0_N_BK1,
+        BBlockTransferThreadClusterArrangeOrder,
+        BBlockTransferSrcAccessOrder,
+        BBlockTransferSrcVectorDim,
+        BBlockTransferSrcScalarPerVector,
+        BBlockTransferDstScalarPerVector_BK1,
+        BBlockLdsExtraN,
+        CShuffleMRepeatPerShuffle,
+        CShuffleNRepeatPerShuffle,
+        CDEShuffleBlockTransferClusterLengths_MBlock_MPerBlock_NBlock_NPerBlock,
+        CDEShuffleBlockTransferScalarPerVector_NPerBlock>;
 
   public:
+    static CKConvFactory getFactory()
+    {
+      return
+      {
+        [](HIPEngine* engine, const ConvDesc& desc) -> Ref<Conv>
+        {
+          return makeRef<CKConvWMMA>(engine, desc);
+        },
+        DataTypeOf<T>::value,
+        DataTypeOf<AccumT>::value,
+        builtinActivation,
+        MPerBlock,
+        NPerBlock,
+        KPerBlock
+      };
+    }
+
     CKConvWMMA(HIPEngine* engine, const ConvDesc& desc)
       : Conv(desc),
         engine(engine)
@@ -149,13 +194,29 @@ OIDN_NAMESPACE_BEGIN
     HIPEngine* engine;
   };
 
-  Ref<Conv> newHIPConvWMMA(HIPEngine* engine, const ConvDesc& desc)
+  template<Activation activation>
+  std::vector<CKConvFactory> getCKConvWMMAInstances()
   {
-    if (desc.srcDesc.dataType == DataType::Float16 && desc.activation == Activation::None)
-      return makeRef<CKConvWMMA<half, Activation::None>>(engine, desc);
-    if (desc.srcDesc.dataType == DataType::Float16 && desc.activation == Activation::ReLU)
-      return makeRef<CKConvWMMA<half, Activation::ReLU>>(engine, desc);
-    throw std::runtime_error("unsupported convolution");
+    return
+    {
+      // ###############################| Prefetch| Block|  MPer|  NPer|  KPer| K1|  MPer| NPer| MRepeat| NRepeat|  ABlockTransfer| ABlockTransfer| ABlockTransfer| ABlockTransfer| ABlockTransfer| ABlockTransfer| ABlockLds|  BBlockTransfer| BBlockTransfer| BBlockTransfer| BlockTransfer| BBlockTransfer| BBlockTransfer| BBlockLds|    CShuffle|    CShuffle| CBlockTransferClusterLengths|  CBlockTransfer|
+      // ###############################|    Stage|  Size| Block| Block| Block|   |  WMMA| WMMA|        |        |   ThreadCluster|  ThreadCluster| SrcAccessOrder|   SrcVectorDim|      SrcScalar|      DstScalar| AddExtraM|   ThreadCluster|  ThreadCluster| SrcAccessOrder|  SrcVectorDim|      SrcScalar|      DstScalar| AddExtraN| MXdlPerWave| NXdlPerWave|         _MBlock_MWaveMPerXdl| ScalarPerVector|
+      // ###############################|         |      |      |      |      |   |      |     |        |        | Lengths_K0_M_K1|   ArrangeOrder|               |               |      PerVector|   PerVector_K1|          | Lengths_K0_N_K1|   ArrangeOrder|               |              |      PerVector|   PerVector_K1|          |  PerShuffle|  PerShuffle|         _NBlock_NWaveNPerXdl|   _NWaveNPerXdl|
+      // ###############################|         |      |      |      |      |   |      |     |        |        |                |               |               |               |               |               |          |                |               |               |              |               |               |          |            |            |                             |                |
+      CKConvWMMA<half, float, activation,        1,   128,   256,    32,    32,  8,    16,   16,       8,       1,     S<4, 32, 1>,     S<1, 0, 2>,     S<1, 0, 2>,              2,              8,              8,         1,     S<4, 32, 1>,     S<1, 0, 2>,     S<1, 0, 2>,             2,              8,              8,         1,           1,           1,               S<1, 32, 1, 4>,               8>::getFactory(),
+      CKConvWMMA<half, float, activation,        1,   128,   128,    64,    32,  8,    16,   16,       4,       2,     S<4, 32, 1>,     S<1, 0, 2>,     S<1, 0, 2>,              2,              8,              8,         1,     S<4, 32, 1>,     S<1, 0, 2>,     S<1, 0, 2>,             2,              8,              8,         1,           1,           1,               S<1, 32, 1, 4>,               8>::getFactory(),
+    };
+  }
+
+  template<>
+  std::vector<CKConvFactory> getCKConvInstances<HIPArch::WMMA>(Activation activation)
+  {
+    switch (activation)
+    {
+    case Activation::None: return getCKConvWMMAInstances<Activation::None>();
+    case Activation::ReLU: return getCKConvWMMAInstances<Activation::ReLU>();
+    default:               return {};
+    }
   }
 
 OIDN_NAMESPACE_END

@@ -175,9 +175,10 @@ if(APPLE)
   # Link against libc++ which supports C++11 features
   append(OIDN_CXX_FLAGS "-stdlib=libc++")
 
-  # FIXME: force old linker to avoid corrupted binary when using ISPC with new linker in Xcode 15
+  # Force old linker to avoid corrupted binary when using ISPC with new linker in Xcode 15
   if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
-     CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
+     CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15 AND
+     CMAKE_CXX_COMPILER_VERSION VERSION_LESS 16)
     add_link_options("-Wl,-ld_classic")
   endif()
 endif()
@@ -226,21 +227,31 @@ endif()
 ## Security
 ## -------------------------------------------------------------------------------------------------
 
+
+if(WIN32)
+  set(OIDN_DEPENDENTLOADFLAG "" CACHE STRING "Set DEPENDENTLOADFLAG linker option")
+  if(OIDN_DEPENDENTLOADFLAG)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+      append(CMAKE_EXE_LINKER_FLAGS    "/DEPENDENTLOADFLAG:${OIDN_DEPENDENTLOADFLAG}")
+      append(CMAKE_SHARED_LINKER_FLAGS "/DEPENDENTLOADFLAG:${OIDN_DEPENDENTLOADFLAG}")
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "IntelLLVM")
+      append(CMAKE_EXE_LINKER_FLAGS    "/Qoption,link,/DEPENDENTLOADFLAG:${OIDN_DEPENDENTLOADFLAG}")
+      append(CMAKE_SHARED_LINKER_FLAGS "/Qoption,link,/DEPENDENTLOADFLAG:${OIDN_DEPENDENTLOADFLAG}")
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19)
+      append(CMAKE_EXE_LINKER_FLAGS    "-Xlinker /DEPENDENTLOADFLAG:${OIDN_DEPENDENTLOADFLAG}")
+      append(CMAKE_SHARED_LINKER_FLAGS "-Xlinker /DEPENDENTLOADFLAG:${OIDN_DEPENDENTLOADFLAG}")
+    else()
+      message(WARNING "The current compiler does not support DEPENDENTLOADFLAG.")
+    endif()
+  endif()
+endif()
+
 if(MSVC)
   # Enable buffer security check
   append(OIDN_C_CXX_FLAGS "/GS")
   # Enable control flow guard
   append(OIDN_C_CXX_FLAGS "/guard:cf")
 
-  if(WIN32)
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-      append(CMAKE_EXE_LINKER_FLAGS    "/DEPENDENTLOADFLAG:0x2000")
-      append(CMAKE_SHARED_LINKER_FLAGS "/DEPENDENTLOADFLAG:0x2000")
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "IntelLLVM")
-      append(CMAKE_EXE_LINKER_FLAGS    "/Qoption,link,/DEPENDENTLOADFLAG:0x2000")
-      append(CMAKE_SHARED_LINKER_FLAGS "/Qoption,link,/DEPENDENTLOADFLAG:0x2000")
-    endif()
-  endif()
 else()
   append(OIDN_C_CXX_FLAGS_RELEASE "-fstack-protector")
 

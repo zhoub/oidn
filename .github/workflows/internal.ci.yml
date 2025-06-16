@@ -39,7 +39,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py package --full
       artifact-out: package-linux
       artifact-path: build/oidn-*.tar.gz
@@ -71,7 +71,7 @@ jobs:
       project: oidn
       runs-on: '[ "Windows", "cuda", "hip" ]'
       msvc-version: "2022"
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       ocloc-version: oneAPI/ocloc/2025.0
       cmd: |
         echo $env:ROCM_PATH
@@ -153,7 +153,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --full
       artifact-out: build-rockylinux8
       artifact-path: build install deps
@@ -165,7 +165,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --compiler clang --config Debug -D OIDN_DEVICE_SYCL=ON -D OIDN_DEVICE_SYCL_AOT=OFF -D OIDN_DEVICE_CUDA=ON
       artifact-out: build-rockylinux8-debug
       artifact-path: build install deps
@@ -176,7 +176,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --full -D OIDN_DEVICE_SYCL_AOT=OFF
       artifact-out: build-rockylinux8-jit
       artifact-path: build install deps
@@ -187,7 +187,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --full -D OIDN_STATIC_LIB=ON
       artifact-out: build-rockylinux8-static
       artifact-path: build install deps
@@ -198,9 +198,20 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --full -D OIDN_LIBRARY_NAME=OIDN -D OIDN_API_NAMESPACE=myoidn
       artifact-out: build-rockylinux8-namespace
+      artifact-path: build install deps
+
+  build-rockylinux8-namespace-nover:
+    secrets: inherit
+    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/docker_gpu.yml@main
+    with:
+      project: oidn
+      image: oidn/rockylinux:8.8
+      dpcpp-version: intel-llvm/v6.0.1-rk
+      cmd: scripts/build.py install --full -D OIDN_LIBRARY_NAME=OIDN -D OIDN_API_NAMESPACE=myoidn -D OIDN_LIBRARY_VERSIONED=OFF
+      artifact-out: build-rockylinux8-namespace-nover
       artifact-path: build install deps
 
   build-rockylinux8-namespace-static:
@@ -209,7 +220,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --full -D OIDN_LIBRARY_NAME=OIDN -D OIDN_API_NAMESPACE=myoidn -D OIDN_STATIC_LIB=ON
       artifact-out: build-rockylinux8-namespace-static
       artifact-path: build install deps
@@ -221,7 +232,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --compiler clang --config Debug -D OIDN_DEVICE_SYCL=ON -D OIDN_DEVICE_SYCL_AOT=OFF -D OIDN_DEVICE_CUDA=ON -D OIDN_LIBRARY_NAME=OIDN -D OIDN_API_NAMESPACE=myoidn
       artifact-out: build-rockylinux8-namespace-debug
       artifact-path: build install deps
@@ -232,7 +243,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --compiler gcc -D OIDN_DEVICE_CUDA=ON -D OIDN_DEVICE_HIP=ON
       artifact-out: build-rockylinux8-gcc
       artifact-path: build install deps
@@ -243,7 +254,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --compiler gcc --config Debug -D OIDN_DEVICE_CUDA=ON
       artifact-out: build-rockylinux8-gcc-debug
       artifact-path: build install deps
@@ -254,7 +265,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --compiler gcc -D OIDN_FILTER_RT=OFF -D OIDN_FILTER_RTLIGHTMAP=OFF
       artifact-out: build-rockylinux8-gcc-minimal
       artifact-path: build install deps
@@ -265,7 +276,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: scripts/build.py install --compiler gcc -D OIDN_DEVICE_CPU_ONEDNN=ON
       artifact-out: build-rockylinux8-gcc-onednn
       artifact-path: build install deps
@@ -276,7 +287,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: >
         scripts/build.py install --install_dir oidn-gta-aotjit-lin --compiler clang
         -D OIDN_DEVICE_CPU=OFF
@@ -291,7 +302,7 @@ jobs:
     with:
       project: oidn
       image: oidn/rockylinux:8.8
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       cmd: >
         scripts/build.py install --install_dir oidn-gta-jit-lin --compiler clang
         -D OIDN_DEVICE_CPU=OFF
@@ -507,6 +518,20 @@ jobs:
       artifact-on-failure: true
       cmd: scripts/test.py --device cpu --log test.log
 
+  test-rockylinux8-namespace-nover-avx512:
+    needs: build-rockylinux8-namespace-nover
+    secrets: inherit
+    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/docker_gpu.yml@main
+    with:
+      project: oidn
+      runs-on: '[ "Linux", "avx512" ]'
+      image: oidn/rockylinux:8.8
+      artifact-in: build-rockylinux8-namespace-nover
+      artifact-out: test-rockylinux8-namespace-nover-avx512
+      artifact-path: test.log
+      artifact-on-failure: true
+      cmd: scripts/test.py --device cpu --log test.log
+
   test-rockylinux8-static-avx512:
     needs: build-rockylinux8-static
     secrets: inherit
@@ -551,6 +576,21 @@ jobs:
       artifact-on-failure: true
       cmd: scripts/test.py --device sycl --log test.log
 
+  test-rockylinux8-bmg:
+    needs: build-rockylinux8
+    secrets: inherit
+    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/docker_gpu.yml@main
+    with:
+      project: oidn
+      runs-on: '[ "Linux", "bmg" ]'
+      image: oidn/ubuntu:22.04
+      options: --device=/dev/dri
+      artifact-in: build-rockylinux8
+      artifact-out: test-rockylinux8-bmg
+      artifact-path: test.log
+      artifact-on-failure: true
+      cmd: scripts/test.py --device sycl --log test.log
+
   test-rockylinux8-pvc:
     needs: build-rockylinux8
     secrets: inherit
@@ -568,21 +608,6 @@ jobs:
         export ZE_FLAT_DEVICE_HIERARCHY=COMPOSITE
         scripts/test.py --device sycl --memcheck --log test.log
 
-  test-rockylinux8-cuda11:
-    needs: build-rockylinux8
-    secrets: inherit
-    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/docker_gpu.yml@main
-    with:
-      project: oidn
-      runs-on: '[ "Linux", "gpu_nvidia" ]'
-      image: oidn/rockylinux:8.8
-      options: --gpus all
-      artifact-in: build-rockylinux8
-      artifact-out: test-rockylinux8-cuda11
-      artifact-path: test.log
-      artifact-on-failure: true
-      cmd: scripts/test.py --device cuda --log test.log # TODO: add --memcheck after upgrading to CUDA 12+
-
   test-rockylinux8-cuda:
     needs: build-rockylinux8
     secrets: inherit
@@ -594,6 +619,21 @@ jobs:
       options: --gpus all
       artifact-in: build-rockylinux8
       artifact-out: test-rockylinux8-cuda
+      artifact-path: test.log
+      artifact-on-failure: true
+      cmd: scripts/test.py --device cuda --memcheck --log test.log
+
+  test-rockylinux8-namespace-nover-cuda:
+    needs: build-rockylinux8-namespace-nover
+    secrets: inherit
+    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/docker_gpu.yml@main
+    with:
+      project: oidn
+      runs-on: '[ "Linux", "gpu_nvidia" ]'
+      image: oidn/ubuntu:22.04
+      options: --gpus all
+      artifact-in: build-rockylinux8-namespace-nover
+      artifact-out: test-rockylinux8-namespace-nover-cuda
       artifact-path: test.log
       artifact-on-failure: true
       cmd: scripts/test.py --device cuda --memcheck --log test.log
@@ -872,6 +912,16 @@ jobs:
       artifact-path: build install deps
       cmd: scripts/build.py install --full -D OIDN_LIBRARY_NAME=OIDN -D OIDN_LIBRARY_NAME=OIDN -D OIDN_API_NAMESPACE=myoidn
 
+  build-macos-arm-namespace-nover:
+    secrets: inherit
+    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/macos.yml@main
+    with:
+      project: oidn
+      runs-on: '[ "macOS", "ARM64", "build" ]'
+      artifact-out: build-macos-arm-namespace-nover
+      artifact-path: build install deps
+      cmd: scripts/build.py install --full -D OIDN_LIBRARY_NAME=OIDN -D OIDN_LIBRARY_NAME=OIDN -D OIDN_API_NAMESPACE=myoidn -D OIDN_LIBRARY_VERSIONED=OFF
+
   build-macos-arm-namespace-static:
     secrets: inherit
     uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/macos.yml@main
@@ -960,6 +1010,19 @@ jobs:
       runs-on: '[ "macOS", "ARM64" ]'
       artifact-in: build-macos-arm-namespace
       artifact-out: test-macos-arm-namespace
+      artifact-path: test.log
+      artifact-on-failure: true
+      cmd: scripts/test.py --device cpu --memcheck --log test.log
+
+  test-macos-arm-namespace-nover:
+    needs: build-macos-arm-namespace-nover
+    secrets: inherit
+    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/macos.yml@main
+    with:
+      project: oidn
+      runs-on: '[ "macOS", "ARM64" ]'
+      artifact-in: build-macos-arm-namespace-nover
+      artifact-out: test-macos-arm-namespace-nover
       artifact-path: test.log
       artifact-on-failure: true
       cmd: scripts/test.py --device cpu --memcheck --log test.log
@@ -1173,7 +1236,7 @@ jobs:
       project: oidn
       runs-on: '[ "Windows", "cuda", "hip" ]'
       msvc-version: "2022"
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       ocloc-version: oneAPI/ocloc/2025.0
       artifact-out: build-windows
       artifact-path: build install
@@ -1186,7 +1249,7 @@ jobs:
       project: oidn
       runs-on: '[ "Windows", "cuda", "hip" ]'
       msvc-version: "2022"
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       ocloc-version: oneAPI/ocloc/2025.0
       artifact-out: build-windows-static
       artifact-path: build install
@@ -1199,7 +1262,8 @@ jobs:
     with:
       project: oidn
       runs-on: '[ "Windows", "cuda", "hip" ]'
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      msvc-version: "2022"
+      dpcpp-version: intel-llvm/v6.0.1-rk
       ocloc-version: oneAPI/ocloc/2025.0
       artifact-out: build-windows-debug
       artifact-path: build install
@@ -1213,11 +1277,25 @@ jobs:
     with:
       project: oidn
       runs-on: '[ "Windows", "cuda", "hip" ]'
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      msvc-version: "2022"
+      dpcpp-version: intel-llvm/v6.0.1-rk
       ocloc-version: oneAPI/ocloc/2025.0
       artifact-out: build-windows-namespace
       artifact-path: build install
       cmd: python scripts/build.py install --full -D OIDN_LIBRARY_NAME=OIDN -D OIDN_API_NAMESPACE=myoidn
+
+  build-windows-namespace-nover:
+    secrets: inherit
+    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/windows.yml@main
+    with:
+      project: oidn
+      runs-on: '[ "Windows", "cuda", "hip" ]'
+      msvc-version: "2022"
+      dpcpp-version: intel-llvm/v6.0.1-rk
+      ocloc-version: oneAPI/ocloc/2025.0
+      artifact-out: build-windows-namespace-nover
+      artifact-path: build install
+      cmd: python scripts/build.py install --full -D OIDN_LIBRARY_NAME=OIDN -D OIDN_API_NAMESPACE=myoidn -D OIDN_LIBRARY_VERSIONED=OFF
 
   build-windows-namespace-static:
     secrets: inherit
@@ -1225,7 +1303,8 @@ jobs:
     with:
       project: oidn
       runs-on: '[ "Windows", "cuda", "hip" ]'
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      msvc-version: "2022"
+      dpcpp-version: intel-llvm/v6.0.1-rk
       ocloc-version: oneAPI/ocloc/2025.0
       artifact-out: build-windows-namespace-static
       artifact-path: build install
@@ -1238,7 +1317,7 @@ jobs:
       project: oidn
       runs-on: '[ "Windows", "build" ]'
       msvc-version: "2022"
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       ocloc-version: oneAPI/ocloc/2025.0
       artifact-out: build-windows-gta-aotjit
       artifact-path: oidn-gta-aotjit-win
@@ -1255,7 +1334,7 @@ jobs:
       project: oidn
       runs-on: '[ "Windows", "build" ]'
       msvc-version: "2022"
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       ocloc-version: oneAPI/ocloc/2025.0
       artifact-out: build-windows-gta-jit
       artifact-path: oidn-gta-jit-win
@@ -1272,7 +1351,7 @@ jobs:
       project: oidn
       runs-on: '[ "Windows", "cuda", "hip" ]'
       msvc-version: "2022"
-      dpcpp-version: intel-llvm/nightly-2023-10-26-rk
+      dpcpp-version: intel-llvm/v6.0.1-rk
       ocloc-version: oneAPI/ocloc/2025.0
       artifact-out: build-windows-cudart
       artifact-path: build install
@@ -1299,9 +1378,10 @@ jobs:
       runs-on: '[ "Windows", "cuda", "hip" ]'
       msvc-version: "2022"
       dpcpp-version: oneAPI/compiler/2025.0
+      ocloc-version: oneAPI/ocloc/2025.0
       artifact-out: build-windows-icx
       artifact-path: build install
-      cmd: python scripts/build.py install --compiler icx --full -D OIDN_DEVICE_SYCL_AOT=OFF # FIXME: enable AOT
+      cmd: python scripts/build.py install --compiler icx --full
 
   build-windows-msvc15:
     secrets: inherit
@@ -1383,21 +1463,6 @@ jobs:
   #     artifact-path: build install
   #     cmd: python scripts/build.py install --compiler msvc17
 
-  test-windows-sse4:
-    needs: build-windows
-    secrets: inherit
-    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/windows.yml@main
-    with:
-      project: oidn
-      runs-on: '[ "Windows", "cuda" ]'
-      artifact-in: build-windows
-      artifact-out: test-windows-sse4
-      artifact-path: test.log
-      artifact-on-failure: true
-      cmd: |
-        $Env:OIDN_SDE_DIR_WINDOWS="\sde"
-        python scripts/test.py --device cpu --arch sse4 --minimal --log test.log
-
   test-windows-avx2:
     needs: build-windows
     secrets: inherit
@@ -1420,6 +1485,19 @@ jobs:
       runs-on: '[ "Windows", "avx512", "NAS" ]'
       artifact-in: build-windows
       artifact-out: test-windows-avx512
+      artifact-path: test.log
+      artifact-on-failure: true
+      cmd: python scripts/test.py --device cpu --log test.log
+
+  test-windows-namespace-nover-avx512:
+    needs: build-windows-namespace-nover
+    secrets: inherit
+    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/windows.yml@main
+    with:
+      project: oidn
+      runs-on: '[ "Windows", "avx512", "NAS" ]'
+      artifact-in: build-windows-namespace-nover
+      artifact-out: test-windows-namespace-nover-avx512
       artifact-path: test.log
       artifact-on-failure: true
       cmd: python scripts/test.py --device cpu --log test.log
@@ -1544,6 +1622,20 @@ jobs:
   #     artifact-on-failure: true
   #     cmd: python scripts/test.py --device cpu --minimal --log test.log
 
+  test-windows-adl:
+    needs: build-windows
+    secrets: inherit
+    uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/windows.yml@main
+    with:
+      project: oidn
+      runs-on: '[ "Windows", "igpu", "adl" ]'
+      env-from-files: ./.github/workflows/gfx-windows-public.env
+      artifact-in: build-windows
+      artifact-out: test-windows-adl
+      artifact-path: test.log
+      artifact-on-failure: true
+      cmd: python scripts/test.py --device sycl --log test.log
+
   test-windows-dg2:
     needs: build-windows
     secrets: inherit
@@ -1558,16 +1650,16 @@ jobs:
       artifact-on-failure: true
       cmd: python scripts/test.py --device sycl --log test.log
 
-  test-windows-adl:
+  test-windows-bmg:
     needs: build-windows
     secrets: inherit
     uses: intel-innersource/libraries.devops.renderkit.workflows/.github/workflows/windows.yml@main
     with:
       project: oidn
-      runs-on: '[ "Windows", "igpu", "adl" ]'
-      env-from-files: ./.github/workflows/gfx-windows-public.env
+      runs-on: '[ "Windows", "bmg", "NAS" ]'
+      env-from-files: ./.github/workflows/gfx-windows-public-bmg.env
       artifact-in: build-windows
-      artifact-out: test-windows-adl
+      artifact-out: test-windows-bmg
       artifact-path: test.log
       artifact-on-failure: true
       cmd: python scripts/test.py --device sycl --log test.log

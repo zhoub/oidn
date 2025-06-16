@@ -54,10 +54,14 @@ OIDN_NAMESPACE_BEGIN
     case SYCLArch::XeLPGplus:
     case SYCLArch::XeHPG:
       return xehpg::newSYCLConv(this, desc);
+  #if defined(__linux__)
     case SYCLArch::XeHPC:
+      return xehpc::newSYCLConv(this, desc);
+  #endif
     case SYCLArch::Xe2LPG:
     case SYCLArch::Xe2HPG:
-      return xehpc::newSYCLConv(this, desc);
+    case SYCLArch::Xe3LPG:
+      return xe2::newSYCLConv(this, desc);
     default:
       throw std::logic_error("unsupported architecture");
     }

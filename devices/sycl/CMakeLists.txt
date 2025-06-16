@@ -82,10 +82,16 @@ set(OIDN_SYCL_SOURCES_COMMON
 )
 
 set(OIDN_SYCL_SOURCES_ARCH
-  sycl_conv_xehpc.cpp
+  sycl_conv_xe2.cpp
   sycl_conv_xehpg.cpp
   sycl_conv_xelp.cpp
 )
+
+if(UNIX)
+  list(APPEND OIDN_SYCL_SOURCES_ARCH
+    sycl_conv_xehpc.cpp
+  )
+endif()
 
 add_library(OpenImageDenoise_device_sycl SHARED
   ${OIDN_SYCL_SOURCES_COMMON}
@@ -96,9 +102,11 @@ add_library(OpenImageDenoise_device_sycl SHARED
 
 set_target_properties(OpenImageDenoise_device_sycl PROPERTIES
   OUTPUT_NAME ${OIDN_LIBRARY_NAME}_device_sycl
-  VERSION ${PROJECT_VERSION}
   CXX_STANDARD 17
 )
+if(OIDN_LIBRARY_VERSIONED)
+  set_target_properties(OpenImageDenoise_device_sycl PROPERTIES VERSION ${PROJECT_VERSION})
+endif()
 
 target_compile_options(OpenImageDenoise_device_sycl PRIVATE ${OIDN_SYCL_COMPILE_FLAGS})
 target_link_options(OpenImageDenoise_device_sycl PRIVATE ${OIDN_SYCL_LINK_FLAGS})
@@ -110,14 +118,18 @@ if(OIDN_DEVICE_SYCL_AOT)
 
   set(OIDN_SYCL_AOT_TARGETS_XELP tgllp,rkl,adl-s,adl-p,adl-n,dg1,mtl-u,mtl-h)
   set(OIDN_SYCL_AOT_TARGETS_XEHPG acm-g10,acm-g11,acm-g12,arl-h)
-  set(OIDN_SYCL_AOT_TARGETS_XEHPC lnl-m)
+  set(OIDN_SYCL_AOT_TARGETS_XE2 lnl-m,bmg-g21-a0)
   if(UNIX)
     set(OIDN_SYCL_AOT_TARGETS_XELP ${OIDN_SYCL_AOT_TARGETS_XELP},pvc-vg)
-    set(OIDN_SYCL_AOT_TARGETS_XEHPC ${OIDN_SYCL_AOT_TARGETS_XEHPC},pvc-sdv,pvc)
+    set(OIDN_SYCL_AOT_TARGETS_XEHPC pvc-sdv,pvc)
   endif()
+
   set(OIDN_SYCL_AOT_TARGETS
-    ${OIDN_SYCL_AOT_TARGETS_XELP},${OIDN_SYCL_AOT_TARGETS_XEHPG},${OIDN_SYCL_AOT_TARGETS_XEHPC}
+    ${OIDN_SYCL_AOT_TARGETS_XELP},${OIDN_SYCL_AOT_TARGETS_XEHPG},${OIDN_SYCL_AOT_TARGETS_XE2}
   )
+  if(OIDN_SYCL_AOT_TARGETS_XEHPC)
+    set(OIDN_SYCL_AOT_TARGETS ${OIDN_SYCL_AOT_TARGETS},${OIDN_SYCL_AOT_TARGETS_XEHPC})
+  endif()
 
   macro(oidn_set_sycl_aot_options sources options)
     set(_final_options ${options})
@@ -131,7 +143,10 @@ if(OIDN_DEVICE_SYCL_AOT)
   oidn_set_sycl_aot_options(sycl_conv_xelp.cpp "-device ${OIDN_SYCL_AOT_TARGETS_XELP}")
   oidn_set_sycl_aot_options(sycl_conv_xehpg.cpp
     "-device ${OIDN_SYCL_AOT_TARGETS_XEHPG} -options '-doubleGRF'")
-  oidn_set_sycl_aot_options(sycl_conv_xehpc.cpp "-device ${OIDN_SYCL_AOT_TARGETS_XEHPC}")
+  if(OIDN_SYCL_AOT_TARGETS_XEHPC)
+    oidn_set_sycl_aot_options(sycl_conv_xehpc.cpp "-device ${OIDN_SYCL_AOT_TARGETS_XEHPC}")
+  endif()
+  oidn_set_sycl_aot_options(sycl_conv_xe2.cpp "-device ${OIDN_SYCL_AOT_TARGETS_XE2}")
 endif()
 
 if(OIDN_DEVICE_SYCL_JIT_CACHE)
@@ -175,6 +190,7 @@ if(OIDN_INSTALL_DEPENDENCIES)
         "${_dpcpp_compiler_dir}/../lib/libsycl.so.?"
         "${_dpcpp_compiler_dir}/../lib/libur_loader.so"
         "${_dpcpp_compiler_dir}/../lib/libur_adapter_level_zero.so"
+        "${_dpcpp_compiler_dir}/../lib/libumf.so"
       )
     endif()
   endif()

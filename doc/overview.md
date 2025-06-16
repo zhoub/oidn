@@ -6,7 +6,10 @@ high-quality denoising filters for images rendered with ray tracing.
 Intel Open Image Denoise is part of the
 [Intel® Rendering Toolkit](https://software.intel.com/en-us/oneapi/render-kit)
 and is released under the permissive
-[Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
+[Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0). It has been
+recognized with a [Technical Achievement Award](https://press.oscars.org/news/14-achievements-be-honored-scientific-and-technical-awardsr)
+by the Academy of Motion Picture Arts and Sciences in 2025 for its contribution
+to the motion picture industry.
 
 The purpose of Intel Open Image Denoise is to provide an open, high-quality,
 efficient, and easy-to-use denoising library that allows one to significantly
@@ -39,17 +42,20 @@ vendors:
 
 -   ARM64 (AArch64) architecture CPUs (e.g. Apple silicon CPUs)
 
--   Intel Xe and Xe2 architecture dedicated and integrated GPUs, including
-    Intel® Arc™ A-Series Graphics, Intel® Data Center GPU Flex Series, Intel®
-    Data Center GPU Max Series, Intel® Iris® Xe Graphics, Intel® Core™ Ultra
-    Processors with Intel® Arc™ Graphics, 11th-14th Gen Intel® Core™ processor
-    graphics, and related Intel Pentium® and Celeron® processors (Xe-LP, Xe-LPG,
-    Xe-LPG+, Xe-HPG, Xe-HPC, Xe2-LPG, and Xe2-HPG microarchitectures)
+-   Intel Xe, Xe2, and Xe3 architecture dedicated and integrated GPUs, including
+    Intel® Arc™ B-Series Graphics, Intel® Arc™ A-Series Graphics,
+    Intel® Arc™ Pro Series Graphics, Intel® Data Center GPU Flex Series,
+    Intel® Data Center GPU Max Series, Intel® Iris® Xe Graphics, Intel® Core™
+    Ultra Processors with Intel® Arc™ Graphics, 11th-14th Gen Intel® Core™
+    processor graphics, and related Intel Pentium® and Celeron® processors
+    (Xe-LP, Xe-LPG, Xe-LPG+, Xe-HPG, Xe-HPC, Xe2-LPG, Xe2-HPG, and Xe3-LPG
+    microarchitectures)
 
--   NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, and Hopper
+-   NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, Hopper, and
+    Blackwell architectures
+
+-   AMD GPUs with RDNA2 (Navi 21 only), RDNA3 (Navi 3x), and RDNA4 (Navi 4x)
     architectures
-
--   AMD GPUs with RDNA2 (Navi 21 only) and RDNA3 (Navi 3x) architectures
 
 -   Apple silicon GPUs (M1 and newer)
 
@@ -90,17 +96,17 @@ Windows.
 For NVIDIA GPU support, please also install the latest
 [NVIDIA graphics drivers](https://www.nvidia.com/en-us/geforce/drivers/):
 
--   Windows: Version 452.39 or newer
+-   Windows: Version 528.33 or newer
 
--   Linux: Version 450.80.02 or newer
+-   Linux: Version 525.60.13 or newer
 
 For AMD GPU support, please also install the latest
 [AMD graphics drivers](https://www.amd.com/en/support):
 
--   Windows: AMD Software: Adrenalin Edition 24.10.1 or newer
+-   Windows: AMD Software: Adrenalin Edition 25.3.1 or newer
 
 -   Linux: [Radeon Software for Linux](https://www.amd.com/en/support/linux-drivers)
-    version 24.20.3 or newer
+    version 24.30.4 or newer
 
 For Apple GPU support, macOS Ventura or newer is required.
 
@@ -130,7 +136,7 @@ project using the following BibTeX entry:
 @misc{OpenImageDenoise,
   author = {Attila T. {\'A}fra},
   title  = {{Intel\textsuperscript{\textregistered} Open Image Denoise}},
-  year   = {2024},
+  year   = {2025},
   note   = {\url{https://www.openimagedenoise.org}}
 }
 ```

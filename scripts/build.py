@@ -13,7 +13,7 @@ import multiprocessing
 
 from common import *
 
-ISPC_VERSION = '1.24.0'
+ISPC_VERSION = '1.26.0'
 TBB_VERSION  = '2021.12.0'
 
 def check_symbols(filename, label, max_version):
@@ -169,6 +169,10 @@ if cfg.target in {'install', 'package'}:
 
 if cfg.target == 'package':
   config_cmd += ' -D OIDN_ZIP_MODE=ON'
+
+if cfg.target == 'package' and OS == 'windows':
+  # LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR (0x00000100) | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS (0x00001000) = 0x00001100
+  config_cmd += ' -D OIDN_DEPENDENTLOADFLAG=0x00001100'
 
 if cfg.target == 'install':
   config_cmd += f' -D CMAKE_INSTALL_PREFIX={cfg.install_dir}'

@@ -1,6 +1,6 @@
 # Intel® Open Image Denoise
 
-This is release v2.3.1 of Intel Open Image Denoise. For changes and new
+This is release v2.3.3 of Intel Open Image Denoise. For changes and new
 features see the [changelog](CHANGELOG.md). Visit
 https://www.openimagedenoise.org for more information.
 
@@ -11,7 +11,11 @@ high-quality denoising filters for images rendered with ray tracing.
 Intel Open Image Denoise is part of the [Intel® Rendering
 Toolkit](https://software.intel.com/en-us/oneapi/render-kit) and is
 released under the permissive [Apache 2.0
-license](http://www.apache.org/licenses/LICENSE-2.0).
+license](http://www.apache.org/licenses/LICENSE-2.0). It has been
+recognized with a [Technical Achievement
+Award](https://press.oscars.org/news/14-achievements-be-honored-scientific-and-technical-awardsr)
+by the Academy of Motion Picture Arts and Sciences in 2025 for its
+contribution to the motion picture industry.
 
 The purpose of Intel Open Image Denoise is to provide an open,
 high-quality, efficient, and easy-to-use denoising library that allows
@@ -47,18 +51,20 @@ different vendors:
 
   - ARM64 (AArch64) architecture CPUs (e.g. Apple silicon CPUs)
 
-  - Intel Xe and Xe2 architecture dedicated and integrated GPUs,
-    including Intel® Arc™ A-Series Graphics, Intel® Data Center GPU Flex
-    Series, Intel® Data Center GPU Max Series, Intel® Iris® Xe Graphics,
-    Intel® Core™ Ultra Processors with Intel® Arc™ Graphics, 11th-14th
-    Gen Intel® Core™ processor graphics, and related Intel Pentium® and
-    Celeron® processors (Xe-LP, Xe-LPG, Xe-LPG+, Xe-HPG, Xe-HPC,
-    Xe2-LPG, and Xe2-HPG microarchitectures)
+  - Intel Xe, Xe2, and Xe3 architecture dedicated and integrated GPUs,
+    including Intel® Arc™ B-Series Graphics, Intel® Arc™ A-Series
+    Graphics, Intel® Arc™ Pro Series Graphics, Intel® Data Center GPU
+    Flex Series, Intel® Data Center GPU Max Series, Intel® Iris® Xe
+    Graphics, Intel® Core™ Ultra Processors with Intel® Arc™ Graphics,
+    11th-14th Gen Intel® Core™ processor graphics, and related Intel
+    Pentium® and Celeron® processors (Xe-LP, Xe-LPG, Xe-LPG+, Xe-HPG,
+    Xe-HPC, Xe2-LPG, Xe2-HPG, and Xe3-LPG microarchitectures)
 
-  - NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, and Hopper
-    architectures
+  - NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, Hopper, and
+    Blackwell architectures
 
-  - AMD GPUs with RDNA2 (Navi 21 only) and RDNA3 (Navi 3x) architectures
+  - AMD GPUs with RDNA2 (Navi 21 only), RDNA3 (Navi 3x), and RDNA4 (Navi
+    4x) architectures
 
   - Apple silicon GPUs (M1 and newer)
 
@@ -100,17 +106,17 @@ recommended if running on Windows.
 For NVIDIA GPU support, please also install the latest [NVIDIA graphics
 drivers](https://www.nvidia.com/en-us/geforce/drivers/):
 
-  - Windows: Version 452.39 or newer
+  - Windows: Version 528.33 or newer
 
-  - Linux: Version 450.80.02 or newer
+  - Linux: Version 525.60.13 or newer
 
 For AMD GPU support, please also install the latest [AMD graphics
 drivers](https://www.amd.com/en/support):
 
-  - Windows: AMD Software: Adrenalin Edition 24.10.1 or newer
+  - Windows: AMD Software: Adrenalin Edition 25.3.1 or newer
 
   - Linux: [Radeon Software for
-    Linux](https://www.amd.com/en/support/linux-drivers) version 24.20.3
+    Linux](https://www.amd.com/en/support/linux-drivers) version 24.30.4
     or newer
 
 For Apple GPU support, macOS Ventura or newer is required.
@@ -140,7 +146,7 @@ cite the project using the following BibTeX entry:
 @misc{OpenImageDenoise,
   author = {Attila T. {\'A}fra},
   title  = {{Intel\textsuperscript{\textregistered} Open Image Denoise}},
-  year   = {2024},
+  year   = {2025},
   note   = {\url{https://www.openimagedenoise.org}}
 }
 ```
@@ -197,18 +203,15 @@ additional prerequisites are needed:
 #### SYCL device for Intel GPUs:
 
   - oneAPI DPC++ Compiler, one of the following versions (other versions
-    are *not* supported):
+    might work as well but have *not* been validated with Intel Open
+    Image Denoise):
     
       - [oneAPI DPC++
-        Compiler 2023-10-26](https://github.com/intel/llvm/releases/tag/nightly-2023-10-26).
-        This is the open source version of the compiler, which is more
-        up-to-date but less stable, so we *strongly* recommend to use
-        this exact version. On Linux we also recommend to rebuild it
-        from source with the `--disable-fusion` flag to minimize the
-        size of the SYCL runtime.
-      - [oneAPI DPC++
-        Compiler 2022-12](https://github.com/intel/llvm/releases/tag/2022-12).
-        *Must* be rebuilt from source.
+        Compiler 6.0.1](https://github.com/intel/llvm/releases/tag/v6.0.1).
+        This is the open source version of the compiler, which needs to
+        be built from source. We recommend building it with the
+        `--disable-jit` flag to minimize the size of the SYCL runtime
+        binaries.
       - [Intel® oneAPI DPC++/C++
         Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html)
         2024.1 or newer
@@ -242,7 +245,7 @@ additional prerequisites are needed:
   - [CMake](http://www.cmake.org) 3.18 or newer
 
   - [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit)
-    11.8 or newer
+    12.8 or newer
 
 #### HIP device for AMD GPUs:
 
@@ -251,7 +254,7 @@ additional prerequisites are needed:
   - [Ninja](https://ninja-build.org) or Make as the CMake generator. The
     Visual Studio generator is *not* supported.
 
-  - [AMD ROCm (HIP SDK)](https://rocm.docs.amd.com) v6.1.2 or newer.
+  - [AMD ROCm (HIP SDK)](https://rocm.docs.amd.com) v6.2.4 or newer.
 
   - Perl (e.g. [Strawberry Perl](https://strawberryperl.com) on Windows)
 
@@ -401,6 +404,9 @@ CMake:
   - `OIDN_LIBRARY_NAME`: Specifies the base name of the Open Image
     Denoise library files (`OpenImageDenoise` by default).
 
+  - `OIDN_LIBRARY_VERSIONED`: Enable versioning of the Open Image
+    Denoise library files, where available (ON by default).
+
   - `OIDN_API_NAMESPACE`: Specifies a namespace to put all Open Image
     Denoise API symbols inside. This is also added as an outer namespace
     for the C++ wrapper API. By default no namespace is used and plain C
@@ -448,6 +454,10 @@ CMake:
 
   - `OIDN_INSTALL_DEPENDENCIES`: Enable installing the dependencies
     (e.g. TBB, SYCL runtime) as well.
+
+  - `OIDN_DEPENDENTLOADFLAG`: Value for `DEPENDENTLOADFLAG` linker flag
+    on Windows. For more information, see
+    [SECURITY.md](SECURITY.md#security-considerations)
 
   - `TBB_ROOT`: The path to the TBB installation (autodetected by
     default).
@@ -1210,8 +1220,8 @@ find a handle type which is supported by both the Open Image Denoise
 device (see `externalMemoryTypes` device parameter) and the graphics
 API. Note that different GPU vendors may support different handle types.
 To ensure compatibility with all device types, applications should
-support at least `OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_FD` on Windows
-and both `OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_FD` and
+support at least `OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_WIN32` on
+Windows and both `OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_FD` and
 `OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DMA_BUF` on Linux. All possible external
 memory types are listed in the table below.
 
